@@ -27,7 +27,7 @@ function extract_filters() {
 		})
 	})
 	db.map(function(e,i){
-		
+		// 
 	})
 
 	return filters;
