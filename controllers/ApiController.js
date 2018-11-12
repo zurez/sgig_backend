@@ -7,27 +7,44 @@ const contents= fs.readFileSync(path.resolve(__dirname, "../data/sample_data.jso
 const db=JSON.parse(contents);
 /*******************FILTER****************************/ 
 
-const filter_kwords=[
+var filter_kwords=[
 "budgetTypeName",
 "experienceLevelName",
 "gigTypeName",
-"companyName",
-"visaStatusName"
+"profile.companyName",
+"profile.visaStatusName"
 ];
 
 function extract_filters() {
-	//Create object
 
-	filters=[] 
-	filter_kwords.map(function(e,i) {
-		filters.push({
-			tag:e,
-			name:e.replace("Name","").replace(/([a-z])([A-Z])/g, '$1 $2'),
-			elements:[]
+	filters=[]
+	filter_kwords.map(function(e_kword,i) {
+		keys=e_kword.split(".")
+		keys_length=keys.length
+		elements=db.map(function(e_db,i_db) {
+			ret=""
+			switch(keys_length){
+				case 1:
+				 ret=e_db[keys[0]]
+				 break;
+				case 2:
+				ret=e_db[keys[0]][keys[1]]
+				break;
+				case 3:
+				ret=e_db[keys[0]][keys[1]][keys[2]]
+				break;
+				default:
+				ret=""
+				break;
+			}
+			return ret
 		})
-	})
-	db.map(function(e,i){
-		// 
+
+		filters.push({
+			tag:e_kword,
+			name:e_kword.replace("Name","").replace(/([a-z])([A-Z])/g, '$1 $2'),
+			elements:elements.filter(function(e,i,el){if(el.indexOf(e)==i)return e}).sort()
+		})
 	})
 
 	return filters;
@@ -36,11 +53,12 @@ function extract_filters() {
 module.exports.filter=function filter() {
 	return new Promise(function(resolve,reject){
 		try{
+		
 			
 			resolve(extract_filters())
 		}
 		catch(e){
-			reject(e)
+			reject({error:e.message})
 		}
 	})
 }
