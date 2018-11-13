@@ -10,9 +10,18 @@ router.get('/filter', function (req, res) {
   	res.send(error)
   })
 })
-// define the about route
-router.get('/about', function (req, res) {
-  res.send('About birds')
+
+
+router.post('/search',function(req,res){
+	
+	Controller.search(req.body.search_query,req.body.filters).then(function(result){
+		res.send(result)
+	}).catch(function(error){
+		res.send(error)
+	})
 })
+
+
+
 
 module.exports = router
